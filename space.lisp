@@ -1,4 +1,4 @@
-(in-package :cepl.space)
+(in-package :cepl.spaces)
 
 ;;----------------------------------------------------------------------
 ;; spatial relationship
@@ -74,7 +74,7 @@
 
 (defun make-space* (&rest relationships)
   (unless relationships
-    (error "CEPL.SPACE: All spaces must be created with at least 1 relationship"))
+    (error "CEPL.SPACES: All spaces must be created with at least 1 relationship"))
   (if (eq :parent (first relationships))
       (dbind (&key parent (transform (m4:identity)))
           relationships
@@ -122,7 +122,7 @@
   (let ((id (%space-nht-id space)))
     (when (> id 0)
       (setf (aref spaces id) nil)
-      (cepl.space.routes:free-id id))
+      (cepl.spaces.routes:free-id id))
     (disconnect-space space)
     nil))
 
@@ -166,7 +166,7 @@
    (parse-relationships relationships)))
 
 (defun %make-relational-space (relationships)
-  (let* ((id (cepl.space.routes:id!))
+  (let* ((id (cepl.spaces.routes:id!))
          (spatial-relationships
           (mapcar (lambda (x)
                     (dbind (target to-m4 from-m4) x
@@ -181,7 +181,7 @@
                                     :element-type 'spatial-relationship
                                     :initial-contents spatial-relationships)
                        :depth 0)))
-    (cepl.space.routes:add-id id (mapcar #'sr-target-id spatial-relationships))
+    (cepl.spaces.routes:add-id id (mapcar #'sr-target-id spatial-relationships))
     (%add-space-to-array space)
     space))
 

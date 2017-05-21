@@ -1,4 +1,4 @@
-(in-package :cepl.space)
+(in-package :cepl.spaces)
 
 ;; here we define the common spaces
 

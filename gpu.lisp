@@ -1,4 +1,4 @@
-(in-package :cepl.space)
+(in-package :cepl.spaces)
 (in-readtable fn:fn-reader)
 
 ;;
@@ -13,8 +13,8 @@
   (add-alternate-type-name 'vec-space 'vec-space-g))
 
 (defmethod cepl.pipelines::infer-implicit-uniform-type
-    ((thing cepl.space:vec-space))
-  'cepl.space::vec-space-g)
+    ((thing vec-space))
+  'vec-space-g)
 
 ;;-------------------------------------------------------------------------
 ;; Spatial Vectors

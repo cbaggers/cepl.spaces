@@ -15,7 +15,8 @@
                #:varjo
                #:cepl
                #:documentation-utils)
-  :components ((:file "constants")
+  :components ((:file "package")
+               (:file "constants")
                (:file "nht-routes")
                (:file "space")
                (:file "predefined-spaces")

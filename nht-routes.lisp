@@ -1,4 +1,4 @@
-(in-package :cepl.space.routes)
+(in-package :cepl.spaces.routes)
 (in-readtable fn:fn-reader)
 
 ;; ideas for memory hungryness:

@@ -1,4 +1,4 @@
-(in-package :cepl.space)
+(in-package :cepl.spaces)
 
 (deferror from-ndc-or-screen-cpu-side () ()
     "Cepl.Spaces: Limitations in cpu-side space transforms from

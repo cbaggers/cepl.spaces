@@ -1,4 +1,4 @@
-(in-package :cepl.space)
+(in-package :cepl.spaces)
 
 (defun sv! (vec &optional (space *default-pos-space*))
   (case= (length vec)

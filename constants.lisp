@@ -1,4 +1,4 @@
-(in-package :cepl.space.routes)
+(in-package :cepl.spaces.routes)
 
 ;;----------------------------------------------------------------------
 ;; Constants

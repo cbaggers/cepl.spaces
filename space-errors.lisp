@@ -1,4 +1,4 @@
-(in-package :cepl.space)
+(in-package :cepl.spaces)
 
 (deferror not-ancestor () (start-space ancestor-space)
     "spaces: ~s is not an ancestor of ~s"

@@ -1,11 +1,11 @@
 ;;;; package.lisp
 
-(uiop:define-package :cepl.space.routes
+(uiop:define-package :cepl.spaces.routes
     (:use #:cl #:fn #:named-readtables #:cepl-utils
           :cepl.errors)
   (:export :id! :free-id :reset :get-route :map-route :reduce-route :add-id))
 
-(uiop:define-package :cepl.space
+(uiop:define-package :cepl.spaces
     (:use :cl :cepl-utils :rtg-math.types :rtg-math :named-readtables
           :varjo :varjo-lang :cepl.types :cepl.errors
           :cepl.internals :cepl.pipelines :cepl.memory)

@@ -1,4 +1,4 @@
-(in-package :cepl.space)
+(in-package :cepl.spaces)
 
 ;;----------------------------------------------------------------------
 ;; Model
@@ -66,7 +66,7 @@
 
 (defmacro with-space-routing-via (via-space &body body)
   `(if (route-restriction)
-       (error "CEPL.SPACE: Encountered a with-routes-via block attempting to route all transforms via ~s however another restriction exists within the same dynamic scope: ~s" ,via-space (route-restriction))
+       (error "CEPL.SPACES: Encountered a with-routes-via block attempting to route all transforms via ~s however another restriction exists within the same dynamic scope: ~s" ,via-space (route-restriction))
        (progn
          (restrict-route ,via-space)
          (unwind-protect
@@ -109,15 +109,15 @@
         (if (and route-restriction
                  (not (eq route-restriction space-a-id))
                  (not (eq route-restriction space-b-id))
-                 (cepl.space.routes::on-route-p
+                 (cepl.spaces.routes::on-route-p
                   space-a-id space-b-id clip-space-id-cached))
             ;;
-            (cepl.space.routes:reduce-route
+            (cepl.spaces.routes:reduce-route
              space-a-id route-restriction #'transform
-             (cepl.space.routes:reduce-route
+             (cepl.spaces.routes:reduce-route
               route-restriction space-b-id #'transform initial-m4))
             ;;
-            (cepl.space.routes:reduce-route space-a-id space-b-id
+            (cepl.spaces.routes:reduce-route space-a-id space-b-id
                                             #'transform initial-m4))))))
 
 (declaim (inline %rspace-to-hspace-transform))
