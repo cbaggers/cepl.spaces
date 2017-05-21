@@ -12,6 +12,10 @@
   (varjo:v-deftype vec-space-g () ())
   (add-alternate-type-name 'vec-space 'vec-space-g))
 
+(defmethod cepl.pipelines::infer-implicit-uniform-type
+    ((thing cepl.space:vec-space))
+  'cepl.space::vec-space-g)
+
 ;;-------------------------------------------------------------------------
 ;; Spatial Vectors
 
