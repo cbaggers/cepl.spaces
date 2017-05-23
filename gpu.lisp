@@ -2,78 +2,8 @@
 (in-readtable fn:fn-reader)
 
 ;;
-;; Spaces
+;; Space Transform & Inference
 ;;
-
-;;-------------------------------------------------------------------------
-;; Vector Space
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (varjo:v-deftype vec-space-g () ())
-  (add-alternate-type-name 'vec-space 'vec-space-g))
-
-(defmethod cepl.pipelines::infer-implicit-uniform-type
-    ((thing vec-space))
-  'vec-space-g)
-
-;;-------------------------------------------------------------------------
-;; Spatial Vectors
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (varjo:v-deftype svec4-g () :vec4
-                   :valid-metadata-kinds spatial-meta)
-
-  (varjo:add-alternate-type-name 'svec4 'svec4-g))
-
-(varjo:def-metadata-kind spatial-meta ()
-  in-space)
-
-(varjo:def-metadata-infer svec4 spatial-meta env
-  (values :in-space (get-current-space env)))
-
-(defmethod varjo:combine-metadata ((meta-a spatial-meta)
-                                   (meta-b spatial-meta))
-  (let ((space-a (in-space meta-a))
-        (space-b (in-space meta-b)))
-    (if (eq space-a space-b)
-        meta-a
-        (error "Space Analysis Failed: Could not establish at compile time which
-space the resulting svec was in between:
-~a
-and
-~a" space-a space-b))))
-
-(varjo:def-shadow-type-constructor svec4 #'(v! :vec4))
-(varjo:def-shadow-type-constructor svec4 #'(v! :vec3 :float))
-(varjo:def-shadow-type-constructor svec4 #'(v! :float :float :float :float))
-
-(varjo:v-define-compiler-macro svec4 (&whole whole &environment env (vec :vec4))
-  (if (varjo:variable-in-scope-p '*current-space* env)
-      whole
-      `(v! ,vec)))
-
-(varjo:v-define-compiler-macro svec4 (&whole whole &environment env
-                                             (v3 :vec3) (f :float))
-  (if (varjo:variable-in-scope-p '*current-space* env)
-      whole
-      `(v! ,v3 ,f)))
-
-(varjo:v-define-compiler-macro svec4 (&whole whole &environment env
-                                             (f0 :float) (f1 :float)
-                                             (f2 :float) (f3 :float))
-  (if (varjo:variable-in-scope-p '*current-space* env)
-      whole
-      `(v! ,f0 ,f1 ,f2 ,f3)))
-
-
-
-(v-defmacro sv! (&rest components)
-  `(svec4 ,@components))
-
-(v-def-glsl-template-fun v! (p) "~a" (svec4-g) :vec4)
-(v-def-glsl-template-fun svec-* (a b) "(~a * ~a)" (v-mat4 svec4-g) 1)
-(v-def-glsl-template-fun svec-* (a b) "(~a * ~a)" (v-mat4 :vec4) 1)
-(v-def-glsl-template-fun svec-* (a b) "(~a * ~a)" (:vec4 v-mat4) 0)
 
 ;;-------------------------------------------------------------------------
 ;; Working with the current space
@@ -84,7 +14,10 @@ and
 (v-defmacro in (&environment env space &body body)
   (assert body () "CEPL.SPACES: 'In' form found without body.")
   (let* ((vars (varjo:variables-in-scope env))
-         (svecs (remove-if-not λ(typep (varjo:variable-type _ env) 'svec4-g) vars))
+         (svecs (remove-if-not λ(let ((type (varjo:variable-type _ env)))
+                                  (or (typep type 'svec4-g)
+                                      (typep type 'svec3-g)))
+                               vars))
          (gvecs (mapcar λ(gensym (symbol-name _)) svecs))
          (spaces (mapcar λ(in-space (varjo:metadata-for-variable _ 'spatial-meta env))
                          svecs))
@@ -135,7 +68,8 @@ and
   (let ((form-type (varjo:argument-type 'form env))
         (in-a-space-p (varjo:variable-in-scope-p '*current-space* env)))
     (cond
-      ((and (v-typep form-type 'svec4-g) in-a-space-p)
+      ((and (or (v-typep form-type 'svec4-g) (v-typep form-type 'svec3-g))
+            in-a-space-p)
        (let* ((inner-name (in-space
                            (varjo:metadata-for-argument 'form 'spatial-meta
                                                         env)))
@@ -144,25 +78,30 @@ and
                  "CEPL: Could not find establish the names of the uniforms which
 hold the spaces we are trying to convert between.
 Found ~a & ~a" inner-name outer-name)
-         (convert-between-spaces form inner-name outer-name env)))
+         (convert-between-spaces form inner-name outer-name form-type env)))
       ((v-typep form-type 'svec4-g) `(v! ,form))
+      ((v-typep form-type 'svec3-g) `(v! ,form))
       (t form))))
 
-(defun convert-between-spaces (form from-name to-name env)
+(defun convert-between-spaces (form from-name to-name form-type env)
   (let ((new-code
          (if (or (eq from-name '*screen-space*) (eq from-name '*ndc-space*))
-             (inject-clip-or-ndc-reverse-transform form from-name to-name env)
-             (inject-regular-space-transform form from-name to-name env))))
+             (inject-clip-or-ndc-reverse-transform form from-name to-name
+                                                   form-type env)
+             (inject-regular-space-transform form from-name to-name
+                                             form-type env))))
     (alexandria:with-gensyms (gvar)
       `(let ((,gvar ,new-code))
          (declare (spatial-meta (:in-space ,to-name) ,gvar))
          ,gvar))))
 
-(defun inject-regular-space-transform (form from-name to-name  env)
+(defun inject-regular-space-transform (form from-name to-name form-type env)
   ;; we need to add the transform uniform and get it's name
-  (let* ((injected (compile-implicit-mat4 from-name to-name env )))
+  (let* ((injected (compile-implicit-mat4 from-name to-name env)))
     ;; and here is the replacement code for our crossing the spaces
-    `(svec-* ,injected ,form)))
+    (etypecase form-type
+      (svec3-g `(svec-* (m4:to-mat3 ,injected) ,form))
+      (svec4-g `(svec-* ,injected ,form)))))
 
 (defun compile-implicit-mat4 (from-name to-name env)
   ;; Inject a conversion uniform
@@ -170,7 +109,10 @@ Found ~a & ~a" inner-name outer-name)
     (varjo:add-lisp-form-as-uniform
      `(get-transform ,from-name ,to-name) :mat4 env implicit-uniform-name)))
 
-(defun inject-clip-or-ndc-reverse-transform (form from-name to-name env)
+
+(defun inject-clip-or-ndc-reverse-transform (form from-name to-name form-type
+                                             env)
+  (declare (ignore form-type))
   (cond
     ;; -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
     ;; The cases we dont yet handle
@@ -197,6 +139,8 @@ Found ~a & ~a" inner-name outer-name)
     (t (error "compile bug"))))
 
 ;;-------------------------------------------------------------------------
+
+;; Also need a vec3 varient
 
 ;; (defun-g screen-space-to-clip-space ((ss-pos :vec4) (viewport :vec4))
 ;;   (/ (v! (- (* (v:s~ ss-pos :xy) 2.0)

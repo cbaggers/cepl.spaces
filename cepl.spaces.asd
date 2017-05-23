@@ -25,5 +25,7 @@
                (:file "space-walking")
                (:file "space-transforms")
                (:file "pos-funcs")
+               (:file "vector-space")
+               (:file "spatial-vector")
                (:file "gpu")
                (:file "docs")))
