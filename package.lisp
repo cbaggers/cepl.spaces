@@ -7,7 +7,7 @@
 
 (uiop:define-package :cepl.spaces
     (:use :cl :cepl-utils :rtg-math.types :rtg-math :named-readtables
-          :varjo :varjo-lang :cepl.types :cepl.errors
+          :varjo :vari :cepl.types :cepl.errors
           :cepl.internals :cepl.pipelines :cepl.memory)
   (:shadowing-import-from :rtg-math :m! :v!)
   (:export :space :vec-space :make-space :make-space*
