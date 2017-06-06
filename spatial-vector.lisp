@@ -78,6 +78,9 @@ and
 (v-def-glsl-template-fun svec-* (a b) "(~a * ~a)" (v-mat4 svec4-g) 1)
 (v-def-glsl-template-fun svec-* (a b) "(~a * ~a)" (v-mat4 :vec4) 1)
 
+(v-def-glsl-template-fun * (a b) "(~a * ~a)" (v-mat4 svec4-g) 1)
+(v-def-glsl-template-fun * (a b) "(~a * ~a)" (v-mat4 :vec4) 1)
+
 ;;-------------------------------------------------------------------------
 ;; Spatial Vec3
 
@@ -105,8 +108,12 @@ and
 
 
 (v-def-glsl-template-fun v! (p) "~a" (svec3-g) :vec3)
+
 (v-def-glsl-template-fun svec-* (a b) "(~a * ~a)" (v-mat3 svec3-g) 1)
 (v-def-glsl-template-fun svec-* (a b) "(~a * ~a)" (v-mat3 :vec3) 1)
+
+(v-def-glsl-template-fun * (a b) "(~a * ~a)" (v-mat3 svec3-g) 1)
+(v-def-glsl-template-fun * (a b) "(~a * ~a)" (v-mat3 :vec3) 1)
 
 ;;-------------------------------------------------------------------------
 ;; Unified Constructor
