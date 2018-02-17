@@ -12,6 +12,7 @@
   :serial t
   :depends-on (#:fn
                #:rtg-math
+               #:rtg-math.vari
                #:varjo
                #:cepl
                #:documentation-utils)

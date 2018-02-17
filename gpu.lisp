@@ -8,9 +8,6 @@
 ;;-------------------------------------------------------------------------
 ;; Working with the current space
 
-(defun get-current-space (env)
-  (varjo:variable-uniform-name '*current-space* env))
-
 (v-defmacro in (&environment env space &body body)
   (assert body () "CEPL.SPACES: 'In' form found without body.")
   (let* ((vars (varjo:variables-in-scope env))

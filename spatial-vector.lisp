@@ -2,6 +2,11 @@
 (in-readtable fn:fn-reader)
 
 ;;-------------------------------------------------------------------------
+
+(defun get-current-space (env)
+  (varjo:variable-uniform-name '*current-space* env))
+
+;;-------------------------------------------------------------------------
 ;; Type
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
