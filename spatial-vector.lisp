@@ -24,13 +24,13 @@
 ;;-------------------------------------------------------------------------
 ;; Metadata type
 
-(varjo:def-metadata-kind spatial-meta ()
+(varjo:define-metadata-kind spatial-meta ()
   in-space)
 
-(varjo:def-metadata-infer svec4 spatial-meta env
+(varjo:define-metadata-infer svec4 spatial-meta env
   (values :in-space (get-current-space env)))
 
-(varjo:def-metadata-infer svec3 spatial-meta env
+(varjo:define-metadata-infer svec3 spatial-meta env
   (values :in-space (get-current-space env)))
 
 (defmethod varjo:combine-metadata ((meta-a spatial-meta)
@@ -48,10 +48,10 @@ and
 ;;-------------------------------------------------------------------------
 ;; Spatial Vec4
 
-(varjo:def-shadow-type-constructor svec4 #'(v! :vec4))
-(varjo:def-shadow-type-constructor svec4 #'(v! :vec3 :float))
-(varjo:def-shadow-type-constructor svec4 #'(v! :vec2 :float :float))
-(varjo:def-shadow-type-constructor svec4 #'(v! :float :float :float :float))
+(varjo:define-shadow-type-constructor svec4 #'(v! :vec4))
+(varjo:define-shadow-type-constructor svec4 #'(v! :vec3 :float))
+(varjo:define-shadow-type-constructor svec4 #'(v! :vec2 :float :float))
+(varjo:define-shadow-type-constructor svec4 #'(v! :float :float :float :float))
 
 (varjo:v-define-compiler-macro svec4 (&whole whole &environment env (vec :vec4))
   (if (varjo:variable-in-scope-p '*current-space* env)
@@ -89,9 +89,9 @@ and
 ;;-------------------------------------------------------------------------
 ;; Spatial Vec3
 
-(varjo:def-shadow-type-constructor svec3 #'(v! :vec3))
-(varjo:def-shadow-type-constructor svec3 #'(v! :vec2 :float))
-(varjo:def-shadow-type-constructor svec3 #'(v! :float :float :float))
+(varjo:define-shadow-type-constructor svec3 #'(v! :vec3))
+(varjo:define-shadow-type-constructor svec3 #'(v! :vec2 :float))
+(varjo:define-shadow-type-constructor svec3 #'(v! :float :float :float))
 
 (varjo:v-define-compiler-macro svec3 (&whole whole &environment env (vec :vec3))
   (if (varjo:variable-in-scope-p '*current-space* env)
